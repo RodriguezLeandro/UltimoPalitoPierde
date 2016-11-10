@@ -85,43 +85,43 @@ public class PrimerPantalla extends PantallaBase{
 
     public void comprobarMovimiento(){
         if (finger.hasEnded()){
+			
+				//Si es mi turno, le mando al servidor la posicion de los palitos a borrar
+				if (miturno) {
+					try {
+						dataOutputStream.write((int) finger.getVectorini().x);
+						dataOutputStream.write((int) finger.getVectorini().y);
+						dataOutputStream.write((int) finger.getVectorfin().x);
+						dataOutputStream.write((int) finger.getVectorfin().y);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 
-            //Si es mi turno, le mando al servidor la posicion de los palitos a borrar
-            if (miturno) {
-                try {
-                    dataOutputStream.write((int) finger.getVectorini().x);
-                    dataOutputStream.write((int) finger.getVectorini().y);
-                    dataOutputStream.write((int) finger.getVectorfin().x);
-                    dataOutputStream.write((int) finger.getVectorfin().y);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+				conexion = new Conexion(finger.getVectorini(),finger.getVectorfin(),palito,maximo);
+				finger.setEsperarMovimiento(true);
+			else{
 
-            conexion = new Conexion(finger.getVectorini(),finger.getVectorfin(),palito,maximo);
-            finger.setEsperarMovimiento(true);
-        }
-        else{
+				//Si es el turno de mi enemigo, espero a que mueva el.
+				try {
 
-            try {
+					response[0] =  dataInputStream.read();
+					response[1] =  dataInputStream.read();
+					response[2] =  dataInputStream.read();
+					response[3] =  dataInputStream.read();
 
-                dataOutputStream.write(-2);
-                response[0] =  dataInputStream.read();
-                response[1] =  dataInputStream.read();
-                response[2] =  dataInputStream.read();
-                response[3] =  dataInputStream.read();
+					Vector2 vector1aux = null, vector2aux = null;
 
-                Vector2 vector1aux = null, vector2aux = null;
+					vector1aux.set(response[0],response[1]);
+					vector2aux.set(response[2],response[3]);
 
-                vector1aux.set(response[0],response[1]);
-                vector2aux.set(response[2],response[3]);
+					conexion = new Conexion(vector1aux,vector2aux,palito,maximo);
 
-                conexion = new Conexion(vector1aux,vector2aux,palito,maximo);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 
     }
 
